@@ -1,0 +1,144 @@
+// Copyright (C) 2009 The Android Open Source Project
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+//
+
+// List of junit files include in documentation.
+// Shared with frameworks/base.
+// based off libcore/Docs.mk
+
+// List of source to build into the core-junit library
+core_junit_files = [
+    "src/junit/framework/Assert.java",
+    "src/junit/framework/AssertionFailedError.java",
+    "src/junit/framework/ComparisonCompactor.java",
+    "src/junit/framework/ComparisonFailure.java",
+    "src/junit/framework/Protectable.java",
+    "src/junit/framework/Test.java",
+    "src/junit/framework/TestCase.java",
+    "src/junit/framework/TestFailure.java",
+    "src/junit/framework/TestListener.java",
+    "src/junit/framework/TestResult.java",
+    "src/junit/framework/TestSuite.java",
+]
+
+// List of source to build into the android.test.runner library
+junit_runner_files = [
+    "src/junit/runner/BaseTestRunner.java",
+    "src/junit/runner/TestRunListener.java",
+    "src/junit/runner/TestSuiteLoader.java",
+    "src/junit/runner/StandardTestSuiteLoader.java",
+    "src/junit/runner/Version.java",
+    "src/junit/textui/ResultPrinter.java",
+    "src/junit/textui/TestRunner.java",
+]
+
+// List of junit javadoc source files for Android public API
+junit_to_document = core_junit_files + junit_runner_files
+
+// List of source to build into junit4 target jars
+junit4_target_src = [
+    "src/org/**/*.java",
+    "src/junit/extensions/**/*.java",
+    "src/junit/runner/**/*.java",
+    "src/junit/textui/**/*.java",
+    "src/junit/framework/ComparisonCompactor.java",
+    "src/junit/framework/JUnit4TestAdapterCache.java",
+    "src/junit/framework/JUnit4TestAdapter.java",
+    "src/junit/framework/JUnit4TestCaseFacade.java",
+]
+
+java_library_host {
+    srcs: ["src/**/*.java"],
+    name: "junit-host",
+    java_static_libs: ["hamcrest-host"],
+}
+
+java_library {
+    host_supported: true,
+    srcs: ["src/junit/extensions/**/*.java"] + core_junit_files + junit_runner_files,
+    name: "junit",
+    no_standard_libraries: true,
+    java_libs: ["core-libart"],
+    tags: ["tests"],
+    // ANDROIDMK TRANSLATION ERROR: unsupported assignment to LOCAL_MODULE_PATH
+    // LOCAL_MODULE_PATH:=$(TARGET_OUT_DATA)/junit
+}
+
+// ----------------------------------
+// build a core-junit target jar that is built into Android system image
+
+// TODO: remove extensions once core-tests is no longer dependent on it
+java_library {
+    host_supported: true,
+    srcs: ["src/junit/extensions/**/*.java"] + core_junit_files,
+    no_standard_libraries: true,
+    java_libs: ["core-libart"],
+    name: "core-junit",
+}
+
+//-------------------------------------------------------
+// build a junit-runner jar for the host JVM
+// (like the junit classes in the frameworks/base android.test.runner.jar)
+
+java_library_host {
+    srcs: junit_runner_files,
+    name: "junit-runner-host",
+    no_standard_libraries: true,
+    java_libs: [
+        "core-libart",
+        "core-junit",
+    ],
+}
+
+//-------------------------------------------------------
+// build a junit-runner for the host dalvikvm
+// (like the junit classes in the frameworks/base android.test.runner.jar)
+
+java_library {
+    host_supported: true,
+    srcs: junit_runner_files,
+    name: "junit-runner",
+    tags: ["optional"],
+    no_standard_libraries: true,
+    java_libs: [
+        "core-libart",
+        "core-junit",
+    ],
+
+}
+
+//-------------------------------------------------------
+// build a junit4-target jar representing the
+// classes in external/junit that are not in the core public API 4
+// Note: 'core' here means excluding the classes that are contained
+// in the optional library android.test.runner. Developers who
+// build against this jar shouldn't have to also include android.test.runner
+
+java_library_static {
+    srcs: junit4_target_src,
+    name: "junit4-target",
+    sdk_version: "4",
+    java_static_libs: ["hamcrest"],
+}
+
+//-------------------------------------------------------
+// Same as above, but does not statically link in dependencies
+
+java_library_static {
+    srcs: junit4_target_src,
+    name: "junit4-target-nodeps",
+    sdk_version: "4",
+    java_libs: ["hamcrest"],
+}

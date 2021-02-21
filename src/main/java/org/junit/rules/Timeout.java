@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  * public static class HasGlobalLongTimeout {
  *
  *  &#064;Rule
- *  public Timeout globalTimeout= new Timeout(20);
+ *  public Timeout globalTimeout = Timeout.millis(20);
  *
  *  &#064;Test
  *  public void run1() throws InterruptedException {
@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class Timeout implements TestRule {
     private final long timeout;
     private final TimeUnit timeUnit;
+    private final boolean lookForStuckThread;
 
     /**
      * Returns a new builder for building an instance.
@@ -79,10 +80,11 @@ public class Timeout implements TestRule {
     public Timeout(long timeout, TimeUnit timeUnit) {
         this.timeout = timeout;
         this.timeUnit = timeUnit;
+        lookForStuckThread = false;
     }
 
     /**
-     * Create a {@code Timeout} instance initialized with values form
+     * Create a {@code Timeout} instance initialized with values from
      * a builder.
      *
      * @since 4.12
@@ -90,6 +92,7 @@ public class Timeout implements TestRule {
     protected Timeout(Builder builder) {
         timeout = builder.getTimeout();
         timeUnit = builder.getTimeUnit();
+        lookForStuckThread = builder.getLookingForStuckThread();
     }
 
     /**
@@ -122,6 +125,16 @@ public class Timeout implements TestRule {
     }
 
     /**
+     * Gets whether this {@code Timeout} will look for a stuck thread
+     * when the test times out.
+     *
+     * @since 4.12
+     */
+    protected final boolean getLookingForStuckThread() {
+        return lookForStuckThread;
+    }
+
+    /**
      * Creates a {@link Statement} that will run the given
      * {@code statement}, and timeout the operation based
      * on the values configured in this rule. Subclasses
@@ -133,6 +146,7 @@ public class Timeout implements TestRule {
             Statement statement) throws Exception {
         return FailOnTimeout.builder()
             .withTimeout(timeout, timeUnit)
+            .withLookingForStuckThread(lookForStuckThread)
             .build(statement);
     }
 
@@ -189,6 +203,25 @@ public class Timeout implements TestRule {
         protected TimeUnit getTimeUnit()  {
             return timeUnit;
         }
+
+        /**
+         * Specifies whether to look for a stuck thread.  If a timeout occurs and this
+         * feature is enabled, the rule will look for a thread that appears to be stuck
+         * and dump its backtrace.  This feature is experimental.  Behavior may change
+         * after the 4.12 release in response to feedback.
+         *
+         * @param enable {@code true} to enable the feature
+         * @return {@code this} for method chaining.
+         */
+        public Builder withLookingForStuckThread(boolean enable) {
+            this.lookForStuckThread = enable;
+            return this;
+        }
+
+        protected boolean getLookingForStuckThread() {
+            return lookForStuckThread;
+        }
+
 
         /**
          * Builds a {@link Timeout} instance using the values in this builder.,

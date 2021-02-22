@@ -3,3 +3,4 @@ Version: 4.13.2
 BugComponent: 40416
 
 Local Changes:
+    Extra generic type information to aid certain javacs.

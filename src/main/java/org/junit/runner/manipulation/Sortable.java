@@ -15,6 +15,6 @@ public interface Sortable {
      *
      * @param sorter the {@link Sorter} to use for sorting the tests
      */
-    void sort(Sorter sorter);
+    public void sort(Sorter sorter);
 
 }

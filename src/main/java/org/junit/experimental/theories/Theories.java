@@ -51,11 +51,11 @@ import org.junit.runners.model.TestClass;
  *      }
  * }
  * </pre>
- * This makes it clear that the username should be included in the config file name,
+ * This makes it clear that the user's filename should be included in the config file name,
  * only if it doesn't contain a slash. Another test or theory might define what happens when a username does contain
  * a slash. <code>UserTest</code> will attempt to run <code>filenameIncludesUsername</code> on every compatible data
  * point defined in the class. If any of the assumptions fail, the data point is silently ignored. If all of the
- * assumptions pass, but an assertion fails, the test fails. If no parameters can be found that satisfy all assumptions, the test fails.
+ * assumptions pass, but an assertion fails, the test fails.
  * <p>
  * Defining general statements as theories allows data point reuse across a bunch of functionality tests and also
  * allows automated tools to search for new, unexpected data points that expose bugs.
@@ -71,11 +71,6 @@ import org.junit.runners.model.TestClass;
 public class Theories extends BlockJUnit4ClassRunner {
     public Theories(Class<?> klass) throws InitializationError {
         super(klass);
-    }
-
-    /** @since 4.13 */
-    protected Theories(TestClass testClass) throws InitializationError {
-        super(testClass);
     }
 
     @Override
@@ -220,7 +215,7 @@ public class Theories extends BlockJUnit4ClassRunner {
 
         protected void runWithCompleteAssignment(final Assignments complete)
                 throws Throwable {
-            new BlockJUnit4ClassRunner(getTestClass()) {
+            new BlockJUnit4ClassRunner(getTestClass().getJavaClass()) {
                 @Override
                 protected void collectInitializationErrors(
                         List<Throwable> errors) {

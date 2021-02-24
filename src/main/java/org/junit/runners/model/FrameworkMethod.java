@@ -28,15 +28,6 @@ public class FrameworkMethod extends FrameworkMember<FrameworkMethod> {
                     "FrameworkMethod cannot be created without an underlying method.");
         }
         this.method = method;
-
-        if (isPublic()) {
-            // This method could be a public method in a package-scope base class
-            try {
-                method.setAccessible(true);
-            } catch (SecurityException  e) {
-                // We may get an IllegalAccessException when we try to call the method
-            }
-        }
     }
 
     /**
@@ -155,11 +146,6 @@ public class FrameworkMethod extends FrameworkMember<FrameworkMethod> {
             }
         }
         return true;
-    }
-
-    @Override
-    boolean isBridgeMethod() {
-        return method.isBridge();
     }
 
     @Override

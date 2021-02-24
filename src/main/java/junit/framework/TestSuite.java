@@ -1,5 +1,7 @@
 package junit.framework;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,7 +12,6 @@ import java.util.List;
 import java.util.Vector;
 
 import org.junit.internal.MethodSorter;
-import org.junit.internal.Throwables;
 
 /**
  * A <code>TestSuite</code> is a <code>Composite</code> of Tests.
@@ -34,7 +35,7 @@ import org.junit.internal.Throwables;
  * <p>
  * A final option is to do the same for a large array of test classes.
  * <pre>
- * Class[] testClasses = { MathTest.class, AnotherTest.class };
+ * Class[] testClasses = { MathTest.class, AnotherTest.class }
  * TestSuite suite= new TestSuite(testClasses);
  * </pre>
  *
@@ -64,11 +65,11 @@ public class TestSuite implements Test {
                 test = constructor.newInstance(new Object[]{name});
             }
         } catch (InstantiationException e) {
-            return (warning("Cannot instantiate test case: " + name + " (" + Throwables.getStacktrace(e) + ")"));
+            return (warning("Cannot instantiate test case: " + name + " (" + exceptionToString(e) + ")"));
         } catch (InvocationTargetException e) {
-            return (warning("Exception in constructor: " + name + " (" + Throwables.getStacktrace(e.getTargetException()) + ")"));
+            return (warning("Exception in constructor: " + name + " (" + exceptionToString(e.getTargetException()) + ")"));
         } catch (IllegalAccessException e) {
-            return (warning("Cannot access test case: " + name + " (" + Throwables.getStacktrace(e) + ")"));
+            return (warning("Cannot access test case: " + name + " (" + exceptionToString(e) + ")"));
         }
         return (Test) test;
     }
@@ -96,6 +97,16 @@ public class TestSuite implements Test {
                 fail(message);
             }
         };
+    }
+
+    /**
+     * Converts the stack trace into a string
+     */
+    private static String exceptionToString(Throwable e) {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        e.printStackTrace(writer);
+        return stringWriter.toString();
     }
 
     private String fName;
@@ -199,7 +210,7 @@ public class TestSuite implements Test {
     }
 
     /**
-     * Adds the tests from the given class to the suite.
+     * Adds the tests from the given class to the suite
      */
     public void addTestSuite(Class<? extends TestCase> testClass) {
         addTest(new TestSuite(testClass));
@@ -251,21 +262,21 @@ public class TestSuite implements Test {
     }
 
     /**
-     * Returns the test at the given index.
+     * Returns the test at the given index
      */
     public Test testAt(int index) {
         return fTests.get(index);
     }
 
     /**
-     * Returns the number of tests in this suite.
+     * Returns the number of tests in this suite
      */
     public int testCount() {
         return fTests.size();
     }
 
     /**
-     * Returns the tests as an enumeration.
+     * Returns the tests as an enumeration
      */
     public Enumeration<Test> tests() {
         return fTests.elements();

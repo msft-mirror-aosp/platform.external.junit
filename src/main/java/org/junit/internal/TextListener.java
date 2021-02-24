@@ -58,7 +58,7 @@ public class TextListener extends RunListener {
 
     protected void printFailures(Result result) {
         List<Failure> failures = result.getFailures();
-        if (failures.isEmpty()) {
+        if (failures.size() == 0) {
             return;
         }
         if (failures.size() == 1) {
@@ -74,7 +74,7 @@ public class TextListener extends RunListener {
 
     protected void printFailure(Failure each, String prefix) {
         getWriter().println(prefix + ") " + each.getTestHeader());
-        getWriter().print(each.getTrimmedTrace());
+        getWriter().print(each.getTrace());
     }
 
     protected void printFooter(Result result) {

@@ -4,12 +4,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import org.junit.internal.runners.statements.RunAfters;
-import org.junit.internal.runners.statements.RunBefores;
-import org.junit.runner.RunWith;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
-import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.model.FrameworkField;
 import org.junit.runners.model.FrameworkMethod;
@@ -22,17 +18,13 @@ import org.junit.runners.model.Statement;
  */
 public class BlockJUnit4ClassRunnerWithParameters extends
         BlockJUnit4ClassRunner {
-    private enum InjectionType {
-        CONSTRUCTOR, FIELD
-    }
-
     private final Object[] parameters;
 
     private final String name;
 
     public BlockJUnit4ClassRunnerWithParameters(TestWithParameters test)
             throws InitializationError {
-        super(test.getTestClass());
+        super(test.getTestClass().getJavaClass());
         parameters = test.getParameters().toArray(
                 new Object[test.getParameters().size()]);
         name = test.getName();
@@ -40,15 +32,10 @@ public class BlockJUnit4ClassRunnerWithParameters extends
 
     @Override
     public Object createTest() throws Exception {
-        InjectionType injectionType = getInjectionType();
-        switch (injectionType) {
-            case CONSTRUCTOR:
-                return createTestUsingConstructorInjection();
-            case FIELD:
-                return createTestUsingFieldInjection();
-            default:
-                throw new IllegalStateException("The injection type "
-                        + injectionType + " is not supported.");
+        if (fieldsAreAnnotated()) {
+            return createTestUsingFieldInjection();
+        } else {
+            return createTestUsingConstructorInjection();
         }
     }
 
@@ -73,13 +60,6 @@ public class BlockJUnit4ClassRunnerWithParameters extends
             int index = annotation.value();
             try {
                 field.set(testClassInstance, parameters[index]);
-            } catch (IllegalAccessException e) {
-                IllegalAccessException wrappedException = new IllegalAccessException(
-                        "Cannot set parameter '" + field.getName()
-                                + "'. Ensure that the field '" + field.getName()
-                                + "' is public.");
-                wrappedException.initCause(e);
-                throw wrappedException;
             } catch (IllegalArgumentException iare) {
                 throw new Exception(getTestClass().getName()
                         + ": Trying to set " + field.getName()
@@ -106,7 +86,7 @@ public class BlockJUnit4ClassRunnerWithParameters extends
     @Override
     protected void validateConstructor(List<Throwable> errors) {
         validateOnlyOneConstructor(errors);
-        if (getInjectionType() != InjectionType.CONSTRUCTOR) {
+        if (fieldsAreAnnotated()) {
             validateZeroArgConstructor(errors);
         }
     }
@@ -114,7 +94,7 @@ public class BlockJUnit4ClassRunnerWithParameters extends
     @Override
     protected void validateFields(List<Throwable> errors) {
         super.validateFields(errors);
-        if (getInjectionType() == InjectionType.FIELD) {
+        if (fieldsAreAnnotated()) {
             List<FrameworkField> annotatedFieldsByParameter = getAnnotatedFieldsByParameter();
             int[] usedIndices = new int[annotatedFieldsByParameter.size()];
             for (FrameworkField each : annotatedFieldsByParameter) {
@@ -145,72 +125,16 @@ public class BlockJUnit4ClassRunnerWithParameters extends
 
     @Override
     protected Statement classBlock(RunNotifier notifier) {
-        Statement statement = childrenInvoker(notifier);
-        statement = withBeforeParams(statement);
-        statement = withAfterParams(statement);
-        return statement;
-    }
-
-    private Statement withBeforeParams(Statement statement) {
-        List<FrameworkMethod> befores = getTestClass()
-                .getAnnotatedMethods(Parameterized.BeforeParam.class);
-        return befores.isEmpty() ? statement : new RunBeforeParams(statement, befores);
-    }
-
-    private class RunBeforeParams extends RunBefores {
-        RunBeforeParams(Statement next, List<FrameworkMethod> befores) {
-            super(next, befores, null);
-        }
-
-        @Override
-        protected void invokeMethod(FrameworkMethod method) throws Throwable {
-            int paramCount = method.getMethod().getParameterTypes().length;
-            method.invokeExplosively(null, paramCount == 0 ? (Object[]) null : parameters);
-        }
-    }
-
-    private Statement withAfterParams(Statement statement) {
-        List<FrameworkMethod> afters = getTestClass()
-                .getAnnotatedMethods(Parameterized.AfterParam.class);
-        return afters.isEmpty() ? statement : new RunAfterParams(statement, afters);
-    }
-
-    private class RunAfterParams extends RunAfters {
-        RunAfterParams(Statement next, List<FrameworkMethod> afters) {
-            super(next, afters, null);
-        }
-
-        @Override
-        protected void invokeMethod(FrameworkMethod method) throws Throwable {
-            int paramCount = method.getMethod().getParameterTypes().length;
-            method.invokeExplosively(null, paramCount == 0 ? (Object[]) null : parameters);
-        }
+        return childrenInvoker(notifier);
     }
 
     @Override
     protected Annotation[] getRunnerAnnotations() {
-        Annotation[] allAnnotations = super.getRunnerAnnotations();
-        Annotation[] annotationsWithoutRunWith = new Annotation[allAnnotations.length - 1];
-        int i = 0;
-        for (Annotation annotation: allAnnotations) {
-            if (!annotation.annotationType().equals(RunWith.class)) {
-                annotationsWithoutRunWith[i] = annotation;
-                ++i;
-            }
-        }
-        return annotationsWithoutRunWith;
+        return new Annotation[0];
     }
 
     private List<FrameworkField> getAnnotatedFieldsByParameter() {
         return getTestClass().getAnnotatedFields(Parameter.class);
-    }
-
-    private InjectionType getInjectionType() {
-        if (fieldsAreAnnotated()) {
-            return InjectionType.FIELD;
-        } else {
-            return InjectionType.CONSTRUCTOR;
-        }
     }
 
     private boolean fieldsAreAnnotated() {

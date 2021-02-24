@@ -17,5 +17,5 @@ public interface TestClassValidator {
      *            the {@link TestClass} that is validated.
      * @return the validation errors found by the validator.
      */
-    List<Exception> validateTestClass(TestClass testClass);
+    public List<Exception> validateTestClass(TestClass testClass);
 }

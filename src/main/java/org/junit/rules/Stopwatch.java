@@ -76,7 +76,7 @@ import java.util.concurrent.TimeUnit;
  * @author tibor17
  * @since 4.12
  */
-public class Stopwatch implements TestRule {
+public abstract class Stopwatch implements TestRule {
     private final Clock clock;
     private volatile long startNanos;
     private volatile long endNanos;

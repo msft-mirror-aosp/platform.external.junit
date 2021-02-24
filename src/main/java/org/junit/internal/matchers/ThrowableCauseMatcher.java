@@ -14,9 +14,9 @@ import org.hamcrest.TypeSafeMatcher;
 public class ThrowableCauseMatcher<T extends Throwable> extends
         TypeSafeMatcher<T> {
 
-    private final Matcher<?> causeMatcher;
+    private final Matcher<? extends Throwable> causeMatcher;
 
-    public ThrowableCauseMatcher(Matcher<?> causeMatcher) {
+    public ThrowableCauseMatcher(Matcher<? extends Throwable> causeMatcher) {
         this.causeMatcher = causeMatcher;
     }
 
@@ -44,7 +44,7 @@ public class ThrowableCauseMatcher<T extends Throwable> extends
      * @param <T> type of the outer exception
      */
     @Factory
-    public static <T extends Throwable> Matcher<T> hasCause(final Matcher<?> matcher) {
+    public static <T extends Throwable> Matcher<T> hasCause(final Matcher<? extends Throwable> matcher) {
         return new ThrowableCauseMatcher<T>(matcher);
     }
 }

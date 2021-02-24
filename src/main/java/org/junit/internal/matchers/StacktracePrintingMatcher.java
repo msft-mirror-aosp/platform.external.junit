@@ -1,10 +1,11 @@
 package org.junit.internal.matchers;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.hamcrest.Description;
 import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
-
-import org.junit.internal.Throwables;
 
 /**
  * A matcher that delegates to throwableMatcher and in addition appends the
@@ -36,7 +37,9 @@ public class StacktracePrintingMatcher<T extends Throwable> extends
     }
 
     private String readStacktrace(Throwable throwable) {
-        return Throwables.getStacktrace(throwable);
+        StringWriter stringWriter = new StringWriter();
+        throwable.printStackTrace(new PrintWriter(stringWriter));
+        return stringWriter.toString();
     }
 
     @Factory

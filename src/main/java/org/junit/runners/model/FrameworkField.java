@@ -14,26 +14,12 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 public class FrameworkField extends FrameworkMember<FrameworkField> {
     private final Field field;
 
-    /**
-     * Returns a new {@code FrameworkField} for {@code field}.
-     *
-     * <p>Access relaxed to {@code public} since version 4.13.1.
-     */
-    public FrameworkField(Field field) {
+    FrameworkField(Field field) {
         if (field == null) {
             throw new NullPointerException(
                     "FrameworkField cannot be created without an underlying field.");
         }
         this.field = field;
-
-        if (isPublic()) {
-            // This field could be a public field in a package-scope base class
-            try {
-                field.setAccessible(true);
-            } catch (SecurityException e) {
-                // We may get an IllegalAccessException when we try to access the field
-            }
-        }
     }
 
     @Override
@@ -52,11 +38,6 @@ public class FrameworkField extends FrameworkMember<FrameworkField> {
     @Override
     public boolean isShadowedBy(FrameworkField otherMember) {
         return otherMember.getName().equals(getName());
-    }
-
-    @Override
-    boolean isBridgeMethod() {
-        return false;
     }
 
     @Override

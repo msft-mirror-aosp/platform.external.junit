@@ -9,17 +9,6 @@ import org.junit.runners.model.RunnerBuilder;
 public class AllDefaultPossibilitiesBuilder extends RunnerBuilder {
     private final boolean canUseSuiteMethod;
 
-    /**
-     * @since 4.13
-     */
-    public AllDefaultPossibilitiesBuilder() {
-        canUseSuiteMethod = true;
-    }
-
-    /**
-     * @deprecated used {@link #AllDefaultPossibilitiesBuilder()}.
-     */
-    @Deprecated
     public AllDefaultPossibilitiesBuilder(boolean canUseSuiteMethod) {
         this.canUseSuiteMethod = canUseSuiteMethod;
     }

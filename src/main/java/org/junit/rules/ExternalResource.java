@@ -1,10 +1,6 @@
 package org.junit.rules;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.runner.Description;
-import org.junit.runners.model.MultipleFailureException;
 import org.junit.runners.model.Statement;
 
 /**
@@ -48,20 +44,11 @@ public abstract class ExternalResource implements TestRule {
             @Override
             public void evaluate() throws Throwable {
                 before();
-
-                List<Throwable> errors = new ArrayList<Throwable>();
                 try {
                     base.evaluate();
-                } catch (Throwable t) {
-                    errors.add(t);
                 } finally {
-                    try {
-                        after();
-                    } catch (Throwable t) {
-                        errors.add(t);
-                    }
+                    after();
                 }
-                MultipleFailureException.assertEmpty(errors);
             }
         };
     }

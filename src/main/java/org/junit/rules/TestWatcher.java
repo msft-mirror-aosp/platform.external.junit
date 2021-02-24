@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.AssumptionViolatedException;
-import org.junit.Rule;
 import org.junit.runner.Description;
 import org.junit.runners.model.MultipleFailureException;
 import org.junit.runners.model.Statement;
@@ -18,7 +17,7 @@ import org.junit.runners.model.Statement;
  * public static class WatchmanTest {
  *  private static String watchedLog;
  *
- *  &#064;Rule(order = Integer.MIN_VALUE)
+ *  &#064;Rule
  *  public TestWatcher watchman= new TestWatcher() {
  *      &#064;Override
  *      protected void failed(Throwable e, Description description) {
@@ -41,11 +40,6 @@ import org.junit.runners.model.Statement;
  *     }
  * }
  * </pre>
- * <p>It is recommended to always set the {@link Rule#order() order} of the
- * {@code TestWatcher} to {@code Integer.MIN_VALUE} so that it encloses all
- * other rules. Otherwise it may see failed tests as successful and vice versa
- * if some rule changes the result of a test (e.g. {@link ErrorCollector} or
- * {@link ExpectedException}).
  *
  * @since 4.9
  */
@@ -60,7 +54,7 @@ public abstract class TestWatcher implements TestRule {
                 try {
                     base.evaluate();
                     succeededQuietly(description, errors);
-                } catch (org.junit.internal.AssumptionViolatedException  e) {
+                } catch (@SuppressWarnings("deprecation") org.junit.internal.AssumptionViolatedException  e) {
                     errors.add(e);
                     skippedQuietly(e, description, errors);
                 } catch (Throwable e) {
@@ -93,6 +87,7 @@ public abstract class TestWatcher implements TestRule {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void skippedQuietly(
             org.junit.internal.AssumptionViolatedException e, Description description,
             List<Throwable> errors) {
@@ -140,6 +135,7 @@ public abstract class TestWatcher implements TestRule {
     /**
      * Invoked when a test is skipped due to a failed assumption.
      */
+    @SuppressWarnings("deprecation")
     protected void skipped(AssumptionViolatedException e, Description description) {
         // For backwards compatibility with JUnit 4.11 and earlier, call the legacy version
         org.junit.internal.AssumptionViolatedException asInternalException = e;

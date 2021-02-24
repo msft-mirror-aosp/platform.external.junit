@@ -40,7 +40,7 @@ public abstract class TypeSafeMatcher<T> extends BaseMatcher<T> {
     }
 
     private static boolean isMatchesSafelyMethod(Method method) {
-        return "matchesSafely".equals(method.getName())
+        return method.getName().equals("matchesSafely")
                 && method.getParameterTypes().length == 1
                 && !method.isSynthetic();
     }

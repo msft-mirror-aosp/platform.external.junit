@@ -20,8 +20,6 @@ import junit.framework.Test;
 import junit.framework.TestListener;
 import junit.framework.TestSuite;
 
-import org.junit.internal.Throwables;
-
 /**
  * Base class for all test runners.
  * This class was born live on stage in Sardinia during XP2000.
@@ -235,7 +233,6 @@ public abstract class BaseTestRunner implements TestListener {
             setPreferences(new Properties(getPreferences()));
             getPreferences().load(is);
         } catch (IOException ignored) {
-        } catch (SecurityException ignored) {
         } finally {
             try {
                 if (is != null) {
@@ -267,7 +264,11 @@ public abstract class BaseTestRunner implements TestListener {
      * Returns a filtered stack trace
      */
     public static String getFilteredTrace(Throwable e) {
-        return BaseTestRunner.getFilteredTrace(Throwables.getStacktrace(e));
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        e.printStackTrace(writer);
+        String trace = stringWriter.toString();
+        return BaseTestRunner.getFilteredTrace(trace);
     }
 
     /**

@@ -21,15 +21,8 @@ public class RunBefores extends Statement {
     @Override
     public void evaluate() throws Throwable {
         for (FrameworkMethod before : befores) {
-            invokeMethod(before);
+            before.invokeExplosively(target);
         }
         next.evaluate();
-    }
-
-    /**
-     * @since 4.13
-     */
-    protected void invokeMethod(FrameworkMethod method) throws Throwable {
-        method.invokeExplosively(target);
     }
 }

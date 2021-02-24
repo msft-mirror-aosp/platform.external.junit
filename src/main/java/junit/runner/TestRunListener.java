@@ -8,18 +8,18 @@ package junit.runner;
  */
 public interface TestRunListener {
     /* test status constants*/
-    int STATUS_ERROR = 1;
-    int STATUS_FAILURE = 2;
+    public static final int STATUS_ERROR = 1;
+    public static final int STATUS_FAILURE = 2;
 
-    void testRunStarted(String testSuiteName, int testCount);
+    public void testRunStarted(String testSuiteName, int testCount);
 
-    void testRunEnded(long elapsedTime);
+    public void testRunEnded(long elapsedTime);
 
-    void testRunStopped(long elapsedTime);
+    public void testRunStopped(long elapsedTime);
 
-    void testStarted(String testName);
+    public void testStarted(String testName);
 
-    void testEnded(String testName);
+    public void testEnded(String testName);
 
-    void testFailed(int status, String testName, String trace);
+    public void testFailed(int status, String testName, String trace);
 }

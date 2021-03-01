@@ -49,6 +49,9 @@ public class ErrorCollector extends Verifier {
         if (error == null) {
             throw new NullPointerException("Error cannot be null");
         }
+        // BEGIN Android-changed: Don't convert assumption failures to errors. b/181123057
+        // Submitted upstream: https://github.com/junit-team/junit4/issues/1703
+        /*
         if (error instanceof AssumptionViolatedException) {
             AssertionError e = new AssertionError(error.getMessage());
             e.initCause(error);
@@ -56,6 +59,9 @@ public class ErrorCollector extends Verifier {
         } else {
             errors.add(error);
         }
+        */
+        // END Android-changed: Don't convert assumption failures to errors. b/181123057
+        errors.add(error);
     }
 
     /**

@@ -6,3 +6,4 @@ Local Changes:
     Extra generic type information to aid certain javacs.
     Remove DisableOnDebug (new in 4.12) as it is not supported on Android
     Remove support for stuck threads
+    Don't convert assumption failures into errors in rules/ErrorCollector
